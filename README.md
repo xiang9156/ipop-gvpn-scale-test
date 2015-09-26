@@ -44,11 +44,13 @@ Run the bash script:
 ```bash scale/scale.bash```
 
 Enter the following commands (see the ```README.md``` in ```scale/``` for information about what these commands do):
-```install```
-```init```
-```source```
-```config <num_successors> <num_chords> <num_on_demand> <num_inbound>```
-```run all```
+```
+install
+init
+source
+config <num_successors> <num_chords> <num_on_demand> <num_inbound>
+run all
+```
 
 To view the IPOP network using the available visualizer, enter ```forward <port>``` within the bash script.
 
