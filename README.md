@@ -11,4 +11,49 @@ A set of scripts is available for automated preparation and simulation of a test
 
 ### Usage
 
-TODO
+#### Obtaining the source code
+
+```
+git clone https://github.com/ssabogal/ipop-structure-p2p-gvpn-controller
+cd ipop-structure-p2p-gvpn-controller
+mv ipop/ scale/node/
+```
+
+#### Preparing physical nodes (using CloudLab)
+
+Create a profile, with at least one node and each node containing the following properties:
+
+* Node Type ```raw-pc```
+
+* Hardware Type ```C220M4```
+
+* Disk Image ```Other...``` with URN ```urn:publicid:IDN+emulab.net+image+emulab-ops:UBUNTU15-04-64-STD```
+
+* Check the ```Publicly Routable IP``` option
+
+
+Note: ensure that the host's SSH keys are applied to the CloudLab account.
+
+Instantiate this profile as an experiment.
+
+#### Using the automated test script
+
+Open the ```List View``` tab to view the connections. Copy the connections (of the form ```<username>@<hostname>```) into ```scale/scale.cfg``` as ```NODE```, ```SERVER```, or ```FORWARDER```. Also specify the ```SIZE``` (the number of IPOP instances)
+
+Run the bash script:
+```bash scale/scale.bash```
+
+Enter the following commands (see the ```README.md``` in ```scale/``` for information about what these commands do):
+```install```
+```init```
+```source```
+```config <num_successors> <num_chords> <num_on_demand> <num_inbound>```
+```run all```
+
+To view the IPOP network using the available visualizer, enter ```forward <port>``` within the bash script.
+
+Run the visualizer:
+
+Note: the visualizer depends on TKinter, use ```pacman -S tk``` (in Archlinux) or ```apt-get install python-tk``` (in Ubuntu/Debian).
+
+```python3 tcp <forwarder ipv4> <forwarder port> <SIZE> <GUI window size (length)>```
