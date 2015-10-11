@@ -54,8 +54,14 @@ run all
 
 To view the IPOP network using the available visualizer, enter ```forward <port>``` within the bash script.
 
-Run the visualizer:
+#### Using the visualizer:
 
-Note: the visualizer depends on TKinter, use ```pacman -S tk``` (in Archlinux) or ```apt-get install python-tk``` (in Ubuntu/Debian).
+Note: the visualizer depends on TKinter, use ```pacman -S tk``` (in Archlinux) or ```apt-get install python3-tk``` (in Ubuntu/Debian).
 
-```python3 tcp <forwarder ipv4> <forwarder port> <SIZE> <GUI window size (length)>```
+In scale.bash:
+
+```forward <forwarder port>```
+
+In a separate terminal:
+
+```python3 visualizer.py tcp <forwarder ipv4> <forwarder port> <SIZE> <GUI window size (length)>```

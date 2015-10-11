@@ -16,6 +16,10 @@ class BaseTopologyManager(ControllerModule):
         self.ipop_state = None
         self.interval_counter = 0
 
+        self.uid = ""
+        self.ip4 = ""
+        self.local_state = {}
+
         # peers (linked nodes)
         self.peers = {}
 
@@ -39,7 +43,7 @@ class BaseTopologyManager(ControllerModule):
         self.discovered_nodes = []
 
         # p2p overlay state
-        self.p2p_state = "disconnected"
+        self.p2p_state = "started"
 
         # address mapping
         self.uid_ip4_table = {}
@@ -169,7 +173,8 @@ class BaseTopologyManager(ControllerModule):
 
     def linked(self, uid):
         if uid in self.peers:
-            if self.peers[uid]["con_status"] == "online":
+#            if self.peers[uid]["con_status"] == "online":
+            if "fpr" in self.peers[uid]:
                 return True
         return False
 
@@ -525,11 +530,13 @@ class BaseTopologyManager(ControllerModule):
             # update local state
             if msg_type == "local_state":
                 self.local_state = msg
+                self.uid = msg["_uid"]
+                self.ip4 = msg["_ip4"]
 
             # update peer list
             elif msg_type == "peer_state":
-                # when disconnected, use peer_state for node discovery
-                if self.p2p_state == "disconnected":
+                # when starting, use peer_state for node discovery
+                if self.p2p_state == "started":
                     self.discovered_nodes.append(msg["uid"])
 
                 # otherwise, use peer_state to update peer state only
@@ -587,8 +594,8 @@ class BaseTopologyManager(ControllerModule):
 
             data = cbt.data
 
-            # ignore packets when disconnected from overlay and ipv6 packets
-            if self.p2p_state == "disconnected" or data[54:56] == "\x86\xdd":
+            # ignore packets when not connected to the overlay and ipv6 packets
+            if self.p2p_state != "connected" or data[54:56] == "\x86\xdd":
                 return
 
             # extract packet
@@ -679,12 +686,11 @@ class BaseTopologyManager(ControllerModule):
 
     def manage_topology(self):
 
-        # this node is disconnected from the IPOP peer-to-peer network
-        # identify local state and discover nodes
-        if self.p2p_state == "disconnected":
+        # this node has started; identify local state and discover nodes
+        if self.p2p_state == "started":
 
-            # the local state was identified and nodes were discovered;
-            # transition to the 'joining' state
+            # identified local state and discovered nodes; transistion to the
+            # joining state
             if self.local_state and self.discovered_nodes:
 
                 log = "identified local state: " + str(self.local_state["_uid"][0:3])
@@ -693,29 +699,39 @@ class BaseTopologyManager(ControllerModule):
                 log = "discovered nodes: " + str(self.discovered_nodes)
                 self.registerCBT('Logger', 'debug', log)
 
-                self.uid = self.local_state["_uid"]
-                self.ip4 = self.local_state["_ip4"]
-                self.p2p_state = "joinning"
+                self.p2p_state = "joining"
 
-            self.registerCBT('Logger', 'info', "p2p state: DISCONNECTED")
+            else:
+                self.registerCBT('Logger', 'info', "p2p state: STARTED")
 
-        # this node is joining the IPOP peer-to-peer network
-        # bootstrap to initial successors as a leaf node
-        if self.p2p_state == "joinning":
+        # this node is joining the IPOP peer-to-peer network; bootstrap to the
+        # initial successors to become a leaf node
+        if self.p2p_state == "joining":
 
-            # bootstrap as a leaf node
-            self.add_successors()
+            # send connection requests to the successor nodes
+            if not self.links["successor"].keys():
 
-            # this node is now a member of the p2p overlay
-            self.p2p_state = "connected"
+                # bootstrap as a leaf node
+                self.add_successors()
 
-            log = "bootstrapped: " + str(self.links["successor"].keys())
-            self.registerCBT('Logger', 'debug', log)
+                log = "bootstrapped: " + str(self.links["successor"].keys())
+                self.registerCBT('Logger', 'debug', log)
 
-            self.registerCBT('Logger', 'info', "p2p state: JOINNING")
+                self.registerCBT('Logger', 'info', "p2p state: JOINING")
 
-        # node is a member of the p2p overlay - p2p manage
-        elif self.p2p_state == "connected":
+            # wait until at least one connection is established
+            elif self.links["successor"].keys():
+
+                for successor in self.links["successor"].keys():
+                    if self.linked(successor):
+                        self.p2p_state = "connected"
+
+            else:
+                self.registerCBT('Logger', 'info', "p2p state: JOINING")
+
+        # this node is connected to the IPOP peer-to-peer network; manage the
+        # topology
+        if self.p2p_state == "connected":
 
             # trim offline connections
             self.clean_connections()
@@ -733,21 +749,23 @@ class BaseTopologyManager(ControllerModule):
             # create advertisements
             self.advertise()
 
-            self.registerCBT('Logger', 'info', "p2p state: CONNECTED")
-
-            self.report_connections() #XXX (may be removed; for debugging)
-
-            # TODO if there are no peers, transition to the 'disconnected' state
-            # If the peer_state notification contained information only about
-            # online peers, then this node could attempt to re-join the network.
-            # However, since peer_state notifications contain information about
-            # any online or offline node in the duration of this execution, it
-            # is unsafe for this node to bootstrap to nodes that are possibly no
-            # longer online.
             if not self.peers:
                 self.p2p_state = "disconnected"
-                print("p2p state: DISCONNECTED - exiting")
-                sys.exit()
+
+            else:
+                self.registerCBT('Logger', 'info', "p2p state: CONNECTED")
+
+        # TODO if there are no peers, transition to the 'disconnected' state
+        # If the peer_state notification contained information only about
+        # online peers, then this node could attempt to re-join the network.
+        # However, since peer_state notifications contain information about
+        # any online or offline node in the duration of this execution, it
+        # is unsafe for this node to bootstrap to nodes that are possibly no
+        # longer online.
+        if self.p2p_state == "disconnected":
+
+            print("p2p state: DISCONNECTED - exiting")
+            sys.exit()
 
     def timer_method(self):
 
@@ -759,13 +777,16 @@ class BaseTopologyManager(ControllerModule):
             # manage topology
             self.manage_topology()
 
+            #XXX (may be removed; for debugging)
+            self.report_connections()
+
             # update local state and peer list
             self.registerCBT('TincanSender', 'DO_GET_STATE', '')
 
         # every <interval_central_visualizer> seconds
         if self.interval_counter % self.CMConfig["interval_central_visualizer"] == 0:
             # send information to central visualizer
-            if self.p2p_state != "disconnected":
+            if self.p2p_state != "started":
                 self.visual_debugger()
 
     def terminate(self):
@@ -830,7 +851,7 @@ class BaseTopologyManager(ControllerModule):
                 ele = str(self.peers[peer]["uid"][0:3])
                 if "ip4" in self.peers[peer]:
                     ele += "-" + str(self.peers[peer]["ip4"].split(".")[3])
-                if "fpr" in self.peers[peer]:
+                if self.linked(peer):
                     ele += "*"
                 ele += "(" + str(self.peers[peer]["ttl"] - current_time)[0:5] + ")"
                 links[con_type].append(ele)
