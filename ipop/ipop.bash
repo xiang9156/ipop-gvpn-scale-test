@@ -2,9 +2,9 @@
 
 cd $(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
-IPOP_TINCAN="ipop-tincan-x86_64"
-IPOP_CONTROLLER="CFx.py"
-IPOP_CONFIG="./config.json"
+IPOP_TINCAN="./ipop-tincan-x86_64"
+IPOP_CONTROLLER="controller.framework.CFx"
+IPOP_CONFIG="./controller/modules/gvpn-config.json"
 
 LOG_TIN="./tin.log"
 LOG_CTR="./ctr.log"
@@ -18,18 +18,17 @@ case $1 in
             exit -1
         fi
 
-        # set executable flags
+        # set executable flag
         sudo chmod +x $IPOP_TINCAN
-        sudo chmod +x $IPOP_CONTROLLER
 
         if [ "$2" == '--verbose' ]; then
             # run IPOP tincan
-            sudo ./$IPOP_TINCAN &
-            ./$IPOP_CONTROLLER -c $IPOP_CONFIG &
+            sudo $IPOP_TINCAN &
+            python -m $IPOP_CONTROLLER -c $IPOP_CONFIG &
         else
             # run IPOP tincan
-            sudo ./$IPOP_TINCAN &> $LOG_TIN &
-            ./$IPOP_CONTROLLER -c $IPOP_CONFIG &> $LOG_CTR &
+            sudo $IPOP_TINCAN &> $LOG_TIN &
+            python -m $IPOP_CONTROLLER -c $IPOP_CONFIG &> $LOG_CTR &
         fi
         ;;
     ("kill")
@@ -85,7 +84,7 @@ case $1 in
             "\n    \"controller_logging\": \"DEBUG\","\
             "\n    \"joinEnabled\": true"\
             "\n  },"\
-            "\n  \"TincanSender\":{"\
+            "\n  \"TincanSender\": {"\
             "\n    \"stun\": [\"$stun\"],"\
             "\n    \"turn\": [$turn],"\
             "\n    \"dependencies\": [\"Logger\"]"\
@@ -118,7 +117,7 @@ case $1 in
             "\n  \"TincanListener\" : {"\
             "\n    \"socket_read_wait_time\": 15,"\
             "\n    \"joinEnabled\": true,"\
-            "\n    \"dependencies\": [\"Logger\"]"\
+            "\n    \"dependencies\": [\"Logger\", \"TincanDispatcher\"]"\
             "\n  },"\
             "\n  \"CentralVisualizer\": {"\
             "\n    \"central_visualizer\": $central_visualizer,"\

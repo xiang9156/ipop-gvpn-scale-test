@@ -3,23 +3,44 @@
 ### Description
 This project implements an IPOP GroupVPN controller for end-systems to operate in a structured peer-to-peer virtual private network. The controller is based on the refactored controller framework [1] for the IPOP project [2].
 
+The source code of the controller has been merged upstream [3].
+
 A set of scripts is available for automated preparation and simulation of a testbed for scalable testing of the IPOP network.
 
-[1] https://github.com/GingerNinja23/controller-framework
 
-[2] http://ipop-project.org/ or https://github.com/ipop-project
+[1] ```https://github.com/GingerNinja23/controller-framework```
+
+[2] ```http://ipop-project.org/ or https://github.com/ipop-project```
+
+[3] ```https://github.com/ipop-project/controllers```
 
 ### Usage
 
 #### Obtaining the source code
 
 ```
-git clone https://github.com/ssabogal/ipop-structure-p2p-gvpn-controller
-cd ipop-structure-p2p-gvpn-controller
+git clone git@github.com:ipop-project/controllers.git
+cd controllers/; git checkout devel; cd -
+
+git clone https://github.com/ssabogal/ipop-structured-p2p-gvpn-controller.git
+cd ipop-structured-p2p-gvpn-controller/
+mv ../controllers/controller ipop/
 mv ipop/ scale/node/
 ```
 
 #### Preparing physical nodes (using CloudLab)
+
+##### Pre-defined profiles
+
+Use any of the following pre-defined profiles:
+
+```
+IPOP_SCALE_TEST_1_VIVID
+IPOP_SCALE_TEST_2_VIVID
+IPOP_SCALE_TEST_5_VIVID
+```
+
+##### Create a profile
 
 Create a profile, with at least one node and each node containing the following properties:
 
@@ -31,10 +52,11 @@ Create a profile, with at least one node and each node containing the following 
 
 * Check the ```Publicly Routable IP``` option
 
+##### Create an experiment
 
 Note: ensure that the host's SSH keys are applied to the CloudLab account.
 
-Instantiate this profile as an experiment.
+Instantiate this profile as to create an experiment.
 
 #### Using the automated test script
 
