@@ -21,6 +21,9 @@ case $1 in
         # set executable flag
         sudo chmod +x $IPOP_TINCAN
 
+		# random
+		#sleep $(expr $RANDOM % 15)
+
         if [ "$2" == '--verbose' ]; then
             # run IPOP tincan
             sudo $IPOP_TINCAN &
@@ -55,13 +58,13 @@ case $1 in
         num_on_demand=${14}
         num_inbound=${15}
 
-        ttl_link_initial=60
-        ttl_link_pulse=30
+        ttl_link_initial=${16}  #60
+        ttl_link_pulse=${17} #30
 
-        ttl_chord=60
-        ttl_on_demand=60
+        ttl_chord=${18}  #60
+        ttl_on_demand=${19}  #60
 
-        on_demand_threshold=10
+        threshold_on_demand=${20}  #128
 
         interval_management=15
         interval_central_visualizer=5
@@ -75,8 +78,6 @@ case $1 in
             "\n    \"xmpp_host\": \"$xmpp_host\","\
             "\n    \"tincan_logging\": 0,"\
             "\n    \"vpn_type\": \"GroupVPN\","\
-            "\n    \"icc\": true,"\
-            "\n    \"icc_port\": 30000,"\
             "\n    \"ip4_mask\": $ipv4_mask,"\
             "\n    \"stat_report\": false"\
             "\n  },"\
@@ -99,7 +100,7 @@ case $1 in
             "\n    \"ttl_link_pulse\": $ttl_link_pulse,"\
             "\n    \"ttl_chord\": $ttl_chord,"\
             "\n    \"ttl_on_demand\": $ttl_on_demand,"\
-            "\n    \"on_demand_threshold\": $on_demand_threshold,"\
+            "\n    \"threshold_on_demand\": $threshold_on_demand,"\
             "\n    \"timer_interval\": 1,"\
             "\n    \"interval_management\": $interval_management,"\
             "\n    \"interval_central_visualizer\": $interval_central_visualizer,"\
