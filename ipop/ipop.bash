@@ -2,9 +2,9 @@
 
 cd $(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
-IPOP_TINCAN="ipop-tincan-x86_64"
-IPOP_CONTROLLER="CFx.py"
-IPOP_CONFIG="./config.json"
+IPOP_TINCAN="./ipop-tincan-x86_64"
+IPOP_CONTROLLER="controller.framework.CFx"
+IPOP_CONFIG="./controller/modules/gvpn-config.json"
 
 LOG_TIN="./tin.log"
 LOG_CTR="./ctr.log"
@@ -18,18 +18,20 @@ case $1 in
             exit -1
         fi
 
-        # set executable flags
+        # set executable flag
         sudo chmod +x $IPOP_TINCAN
-        sudo chmod +x $IPOP_CONTROLLER
+
+		# random
+		#sleep $(expr $RANDOM % 15)
 
         if [ "$2" == '--verbose' ]; then
             # run IPOP tincan
-            sudo ./$IPOP_TINCAN &
-            ./$IPOP_CONTROLLER -c $IPOP_CONFIG &
+            sudo $IPOP_TINCAN &
+            python -m $IPOP_CONTROLLER -c $IPOP_CONFIG &
         else
             # run IPOP tincan
-            sudo ./$IPOP_TINCAN &> $LOG_TIN &
-            ./$IPOP_CONTROLLER -c $IPOP_CONFIG &> $LOG_CTR &
+            sudo $IPOP_TINCAN &> $LOG_TIN &
+            python -m $IPOP_CONTROLLER -c $IPOP_CONFIG &> $LOG_CTR &
         fi
         ;;
     ("kill")
@@ -56,13 +58,13 @@ case $1 in
         num_on_demand=${14}
         num_inbound=${15}
 
-        ttl_link_initial=60
-        ttl_link_pulse=30
+        ttl_link_initial=${16}  #60
+        ttl_link_pulse=${17} #30
 
-        ttl_chord=60
-        ttl_on_demand=60
+        ttl_chord=${18}  #60
+        ttl_on_demand=${19}  #60
 
-        on_demand_threshold=10
+        threshold_on_demand=${20}  #128
 
         interval_management=15
         interval_central_visualizer=5
@@ -76,8 +78,6 @@ case $1 in
             "\n    \"xmpp_host\": \"$xmpp_host\","\
             "\n    \"tincan_logging\": 0,"\
             "\n    \"vpn_type\": \"GroupVPN\","\
-            "\n    \"icc\": true,"\
-            "\n    \"icc_port\": 30000,"\
             "\n    \"ip4_mask\": $ipv4_mask,"\
             "\n    \"stat_report\": false"\
             "\n  },"\
@@ -85,7 +85,7 @@ case $1 in
             "\n    \"controller_logging\": \"DEBUG\","\
             "\n    \"joinEnabled\": true"\
             "\n  },"\
-            "\n  \"TincanSender\":{"\
+            "\n  \"TincanSender\": {"\
             "\n    \"stun\": [\"$stun\"],"\
             "\n    \"turn\": [$turn],"\
             "\n    \"dependencies\": [\"Logger\"]"\
@@ -100,7 +100,7 @@ case $1 in
             "\n    \"ttl_link_pulse\": $ttl_link_pulse,"\
             "\n    \"ttl_chord\": $ttl_chord,"\
             "\n    \"ttl_on_demand\": $ttl_on_demand,"\
-            "\n    \"on_demand_threshold\": $on_demand_threshold,"\
+            "\n    \"threshold_on_demand\": $threshold_on_demand,"\
             "\n    \"timer_interval\": 1,"\
             "\n    \"interval_management\": $interval_management,"\
             "\n    \"interval_central_visualizer\": $interval_central_visualizer,"\
@@ -118,7 +118,7 @@ case $1 in
             "\n  \"TincanListener\" : {"\
             "\n    \"socket_read_wait_time\": 15,"\
             "\n    \"joinEnabled\": true,"\
-            "\n    \"dependencies\": [\"Logger\"]"\
+            "\n    \"dependencies\": [\"Logger\", \"TincanDispatcher\"]"\
             "\n  },"\
             "\n  \"CentralVisualizer\": {"\
             "\n    \"central_visualizer\": $central_visualizer,"\
