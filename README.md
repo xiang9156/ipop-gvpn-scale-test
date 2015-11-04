@@ -1,18 +1,13 @@
-# IPOP Structured P2P GroupVPN Controller
+# Scale Test for the IPOP Structured P2P GroupVPN Controller
 
 ### Description
-This project implements an IPOP GroupVPN controller for end-systems to operate in a structured peer-to-peer virtual private network. The controller is based on the refactored controller framework [1] for the IPOP project [2].
 
-The source code of the controller has been merged upstream [3].
+This project is composed of scripts for automating the preparation and simulation of a testbed for scalable testing of the IPOP network using structured-p2p-gvpn-controller, which has been pushed upstream [1].
 
-A set of scripts is available for automated preparation and simulation of a testbed for scalable testing of the IPOP network.
-
-
-[1] ```https://github.com/GingerNinja23/controller-framework```
+[1] ```https://github.com/ipop-project/controllers```
 
 [2] ```http://ipop-project.org/ or https://github.com/ipop-project```
 
-[3] ```https://github.com/ipop-project/controllers```
 
 ### Usage
 
@@ -22,10 +17,9 @@ A set of scripts is available for automated preparation and simulation of a test
 git clone git@github.com:ipop-project/controllers.git
 cd controllers/; git checkout devel; cd -
 
-git clone https://github.com/ssabogal/ipop-structured-p2p-gvpn-controller.git
-cd ipop-structured-p2p-gvpn-controller/
-mv ../controllers/controller ipop/
-mv ipop/ scale/node/
+git clone https://github.com/ssabogal/ipop-gvpn-scale-test.git
+cd ipop-gvpn-scale-test/
+mv ../controllers/controller scale/node/ipop/
 ```
 
 #### Preparing physical nodes (using CloudLab)
@@ -67,12 +61,24 @@ Run the bash script:
 
 Enter the following commands (see the ```README.md``` in ```scale/``` for information about what these commands do):
 ```
+accept    # enter 'yes' if prompted
 install
 init
 source
-config <num_successors> <num_chords> <num_on_demand> <num_inbound>
+config <num_successors> <num_chords> <num_on_demand> <num_inbound> <ttl_link_initial> <ttl_link_pulse> <ttl_chord> <ttl_on_demand> <threshold_on_demand>
 run all
 ```
+Example: ```config 2 3 2 8 60 30 180 60 128``` defines the BaseTopologyManager to support:
+
+* about 2 successors
+* up to 3 chords
+* up to 2 on-demand links
+* about 8 in-bound links
+* initializing links have a time-to-live of 60 seconds before it is trimmed
+* established links have a time-to-live of 30 seconds before it is trimmed
+* chords have a time-to-live of 180 seconds before they may be replaced
+* on-demand links have a time-to-live of 60 seconds before it undergoes a threshold test
+* on-demand links have a threshold of 128 transmitted bytes per second before it is trimmed
 
 To view the IPOP network using the available visualizer, enter ```forward <port>``` within the bash script.
 
@@ -86,4 +92,4 @@ In scale.bash:
 
 In a separate terminal:
 
-```python3 visualizer.py tcp <forwarder ipv4> <forwarder port> <SIZE> <GUI window size (length)>```
+```python3 scale/visualizer.py tcp <forwarder ipv4> <forwarder port> <SIZE> <GUI window size (length)>```

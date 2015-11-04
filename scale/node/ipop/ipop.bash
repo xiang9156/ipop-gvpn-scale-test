@@ -3,7 +3,7 @@
 cd $(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
 IPOP_TINCAN="./ipop-tincan-x86_64"
-IPOP_CONTROLLER="controller.framework.CFx"
+IPOP_CONTROLLER="controller.Controller"
 IPOP_CONFIG="./controller/modules/gvpn-config.json"
 
 LOG_TIN="./tin.log"
@@ -58,13 +58,13 @@ case $1 in
         num_on_demand=${14}
         num_inbound=${15}
 
-        ttl_link_initial=${16}  #60
-        ttl_link_pulse=${17} #30
+        ttl_link_initial=${16}
+        ttl_link_pulse=${17}
 
-        ttl_chord=${18}  #60
-        ttl_on_demand=${19}  #60
+        ttl_chord=${18}
+        ttl_on_demand=${19}
 
-        threshold_on_demand=${20}  #128
+        threshold_on_demand=${20}
 
         interval_management=15
         interval_central_visualizer=5
@@ -82,16 +82,18 @@ case $1 in
             "\n    \"stat_report\": false"\
             "\n  },"\
             "\n  \"Logger\": {"\
-            "\n    \"controller_logging\": \"DEBUG\","\
-            "\n    \"joinEnabled\": true"\
+            "\n    \"controller_logging\": \"ERROR\""\
             "\n  },"\
             "\n  \"TincanSender\": {"\
+            "\n    \"switchmode\": 0,"\
             "\n    \"stun\": [\"$stun\"],"\
             "\n    \"turn\": [$turn],"\
             "\n    \"dependencies\": [\"Logger\"]"\
             "\n  },"\
             "\n  \"BaseTopologyManager\": {"\
             "\n    \"ip4\": \"$ipv4\","\
+            "\n    \"sec\": true,"\
+            "\n    \"multihop\": false,"\
             "\n    \"num_successors\": $num_successors,"\
             "\n    \"num_chords\": $num_chords,"\
             "\n    \"num_on_demand\": $num_on_demand,"\
@@ -104,27 +106,28 @@ case $1 in
             "\n    \"timer_interval\": 1,"\
             "\n    \"interval_management\": $interval_management,"\
             "\n    \"interval_central_visualizer\": $interval_central_visualizer,"\
-            "\n    \"joinEnabled\": true,"\
             "\n    \"dependencies\": [\"Logger\", \"CentralVisualizer\"]"\
             "\n  },"\
             "\n  \"LinkManager\": {"\
-            "\n    \"joinEnabled\": true,"\
             "\n    \"dependencies\": [\"Logger\"]"\
             "\n  },"\
             "\n  \"TincanDispatcher\": {"\
-            "\n    \"joinEnabled\": true,"\
             "\n    \"dependencies\": [\"Logger\"]"\
             "\n  },"\
             "\n  \"TincanListener\" : {"\
             "\n    \"socket_read_wait_time\": 15,"\
-            "\n    \"joinEnabled\": true,"\
             "\n    \"dependencies\": [\"Logger\", \"TincanDispatcher\"]"\
+            "\n  },"\
+            "\n    \"StatReport\": {"\
+            "\n    \"stat_report\": false,"\
+            "\n    \"stat_server\": \"metrics.ipop-project.org\","\
+            "\n    \"stat_server_port\": 5000,"\
+            "\n    \"timer_interval\": 200"\
             "\n  },"\
             "\n  \"CentralVisualizer\": {"\
             "\n    \"central_visualizer\": $central_visualizer,"\
             "\n    \"central_visualizer_addr\": \"$central_visualizer_ipv4\","\
             "\n    \"central_visualizer_port\": $central_visualizer_port,"\
-            "\n    \"joinEnabled\": true,"\
             "\n    \"dependencies\": [\"Logger\"]"\
             "\n  }"\
             "\n}"\
