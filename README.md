@@ -22,6 +22,8 @@ cd ipop-gvpn-scale-test/
 mv ../controllers/controller scale/node/ipop/
 ```
 
+Note: A precompiled binary for **IPOP-Tincan** is available in ```scale/node/ipop```. The latest IPOP-Tincan can be obtained by downloading the latest archive from the releases or by building from source [2].
+
 #### Preparing physical nodes (using CloudLab)
 
 ##### Pre-defined profiles
