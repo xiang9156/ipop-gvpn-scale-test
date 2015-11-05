@@ -14,7 +14,7 @@ This project is composed of scripts for automating the preparation and simulatio
 #### Obtaining the source code
 
 ```
-git clone git@github.com:ipop-project/controllers.git
+git clone https://github.com/ipop-project/controllers.git
 cd controllers/; git checkout devel; cd -
 
 git clone https://github.com/ssabogal/ipop-gvpn-scale-test.git
@@ -76,11 +76,11 @@ Example: ```config 2 3 2 8 60 30 180 60 128``` defines the BaseTopologyManager t
 * up to 3 chords
 * up to 2 on-demand links
 * about 8 in-bound links
-* initializing links have a time-to-live of 60 seconds before it is trimmed
-* established links have a time-to-live of 30 seconds before it is trimmed
+* initializing links have a time-to-live of 60 seconds before they are trimmed
+* established links have a time-to-live of 30 seconds before they are trimmed
 * chords have a time-to-live of 180 seconds before they may be replaced
-* on-demand links have a time-to-live of 60 seconds before it undergoes a threshold test
-* on-demand links have a threshold of 128 transmitted bytes per second before it is trimmed
+* on-demand links have a time-to-live of 60 seconds before they undergoes a threshold test
+* on-demand links have a threshold of 128 transmitted bytes per second before they are trimmed
 
 To view the IPOP network using the available visualizer, enter ```forward <port>``` within the bash script.
 
