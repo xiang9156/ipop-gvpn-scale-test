@@ -17,7 +17,7 @@ This project is composed of scripts for automating the preparation and simulatio
 git clone https://github.com/ipop-project/controllers.git
 cd controllers/; git checkout devel; cd -
 
-git clone https://github.com/ssabogal/ipop-gvpn-scale-test.git
+git clone https://github.com/xiang9156/ipop-gvpn-scale-test.git
 cd ipop-gvpn-scale-test/
 mv ../controllers/controller scale/node/ipop/
 ```
@@ -95,3 +95,20 @@ In scale.bash:
 In a separate terminal:
 
 ```python3 scale/visualizer.py tcp <forwarder ipv4> <forwarder port> <SIZE> <GUI window size (length)>```
+
+#### IPOP TEST:
+In scale.bash:
+
+ping:
+
+```ping <d/v> <vnode1_id> <vnode2_id> <count>``` for ping from vnode1 to vnode2 through direct link or virtual link
+
+iperf:
+
+```iperf s <vnode_id> <t/u>``` for running a iperf server with tcp or udp
+
+```iperf <d/v> <vnode1_id> <vnode2_id> <t/u>``` for testing throughput between vnode1(client) and vnode2(server) with tcp or udp through direct link or virtual link
+
+mem:
+
+```mem <vnode_id>/<all>``` for monitoring the memory utilization of tincan on specific vnode or all vnodes
