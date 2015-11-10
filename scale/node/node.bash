@@ -255,7 +255,6 @@ case $1 in
    			sudo lxc-attach -n "node$vnode" -- iperf -c $ip
 		    fi		    
                     ;;
-                    ;;
                 ("s")
 		    vnode=$3
 		    type=$4
@@ -282,7 +281,6 @@ case $1 in
         	sudo lxc-attach -n "node$vnode" -- ping $ip -c $count 
 	fi
         
-	;;
 	;;
     ("getip")
 	vnode=$2
