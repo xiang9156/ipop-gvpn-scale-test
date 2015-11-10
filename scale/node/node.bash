@@ -108,7 +108,7 @@ case $1 in
             sudo bash -c "
                 lxc-clone default node$i;
                 sudo lxc-start -n node$i --daemon;
-                sudo lxc-attach -n node$i -- bash -c 'sudo mkdir /dev/net; sudo mknod /dev/net/tun c 10 200; sudo chmod 0666 /dev/net/tun';
+                sudo lxc-attach -n node$i -- bash -c 'sudo mkdir /dev/net; sudo mknod /dev/net/tun c 10 200; sudo chmod 0666 /dev/net/tun;';
             " &
         done
         wait 
@@ -235,6 +235,67 @@ case $1 in
             sudo lxc-attach -n "node$vnode" -- bash -c "bash $LXC_IPOP_SCRIPT kill"
         done
         ;;
+    ("mem")
+        vnode_list=($2)
+
+        for vnode in ${vnode_list[@]}; do
+	    tincan_pid=$(sudo lxc-attach -n "node$vnode" -- ps aux | grep tincan | grep root | awk '{print$2}' | head -n 1)
+            sudo lxc-attach -n "node$vnode" -- top -n 1 -b -p $tincan_pid
+        done
+        ;;
+    ("iperf")
+	    case $2 in
+                ("c")
+		    vnode=$3
+		    ip=$4
+		    type=$5
+	 	    if [ $type == 'u' ]; then
+  		  	sudo lxc-attach -n "node$vnode" -- iperf -u -c $ip
+		    else
+   			sudo lxc-attach -n "node$vnode" -- iperf -c $ip
+		    fi		    
+                    ;;
+                    ;;
+                ("s")
+		    vnode=$3
+		    type=$4
+		    if [ $type == 'u' ]; then
+  		  	sudo lxc-attach -n "node$vnode" -- iperf -u -s -D
+		    else
+   			sudo lxc-attach -n "node$vnode" -- iperf -s -D
+		    fi		   
+                    ;;
+                ("kill")
+		    vnode=$3
+		    iperf_pid=$(sudo lxc-attach -n "node$vnode" -- ps aux | grep iperf | awk '{print$2}' | head -n 1)
+		    sudo lxc-attach -n "node$vnode" -- sudo kill -9 $iperf_pid
+                    ;;
+            esac
+        ;;
+    ("ping")
+	vnode=$2
+	ip=$3
+	count=$4
+        if [ -z $count ]; then
+       		sudo lxc-attach -n "node$vnode" -- ping $ip
+	else
+        	sudo lxc-attach -n "node$vnode" -- ping $ip -c $count 
+	fi
+        
+	;;
+	;;
+    ("getip")
+	vnode=$2
+	node_ETH_DEV=$(sudo lxc-attach -n "node$vnode" -- ifconfig | grep eth | awk '{print $1}' | head -n 1)
+	node_IPv4=$(sudo lxc-attach -n "node$vnode" -- ifconfig $node_ETH_DEV | grep "inet addr" | awk -F: '{print $2}' | awk '{print $1}')
+	echo $node_IPv4
+	;;
+    ("getvip")
+	vnode=$2
+	node_IPOP_DEV=$(sudo lxc-attach -n "node$vnode" -- ifconfig | grep ipop | awk '{print $1}' | head -n 1)
+	node_Vip=$(sudo lxc-attach -n "node$vnode" -- ifconfig $node_IPOP_DEV | grep "inet addr" | awk -F: '{print $2}' | awk '{print $1}')
+	echo $node_Vip
+	;;
     (*)
         echo "invalid operation"
         ;;

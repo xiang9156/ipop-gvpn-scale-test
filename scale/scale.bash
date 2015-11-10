@@ -183,6 +183,96 @@ while true; do
                 ssh ${NODES[$i]} "bash $NODE_NODE_SCRIPT kill '${node_list[$i]}' &" &
             done
             ;;
+	("ping")
+	    #ping two vnodes to test the delay
+	    case ${args[0]} in
+                ("d")
+		    vnode1_id=${args[1]}
+		    vnode2_id=${args[2]}
+		    count=${args[3]}
+ 		    index1=$(($vnode1_id / ($SIZE / $NR_NODES)))
+		    index2=$(($vnode2_id / ($SIZE / $NR_NODES)))
+		    vnode2_ip=$(ssh ${NODES[$index2]} "bash $NODE_NODE_SCRIPT getip $vnode2_id")
+		    ssh ${NODES[$index1]} "bash $NODE_NODE_SCRIPT ping $vnode1_id $vnode2_ip $count"
+		    
+                    ;;
+                ("v")
+		    vnode1_id=${args[1]}
+                    vnode2_id=${args[2]}
+		    count=${args[3]}
+                    index1=$(($vnode1_id / ($SIZE / $NR_NODES)))
+		    index2=$(($vnode2_id / ($SIZE / $NR_NODES)))
+                    vnode2_vip=$(ssh ${NODES[$index2]} "bash $NODE_NODE_SCRIPT getvip $vnode2_id")
+                    ssh ${NODES[$index1]} "bash $NODE_NODE_SCRIPT ping $vnode1_id $vnode2_vip $count"
+                    ;;
+                (*)
+		    echo "Usage:"
+		    echo "ping <d> <vnode1_id> <vnode2_id> <count> for testing direct link"
+		    echo "ping <v> <vnode1_id> <vnode2_id> <count> for testing virtual link"
+                    ;;
+            esac
+	    ;;
+	("iperf")
+            #test throughtput between two vnodes with virtual link and direct link
+	    case ${args[0]} in 
+	 	("s") #start the iperf server on the vnode
+		    vnode_id=${args[1]}
+		    index=$(($vnode_id / ($SIZE / $NR_NODES)))
+		    type=${args[2]}
+		    ssh ${NODES[$index]} "bash $NODE_NODE_SCRIPT iperf s $vnode_id $type &" &
+		    ;;	    
+		("d")
+		    vnode1_id=${args[1]}
+           	    vnode2_id=${args[2]}
+        	    index1=$(($vnode1_id / ($SIZE / $NR_NODES)))
+	            index2=$(($vnode2_id / ($SIZE / $NR_NODES)))
+                    vnode2_ip=$(ssh ${NODES[$index2]} "bash $NODE_NODE_SCRIPT getip $vnode2_id")		    
+ 		    type=${args[3]}		    
+                    ssh ${NODES[$index1]} "bash $NODE_NODE_SCRIPT iperf c $vnode1_id $vnode2_ip $type"
+		    ;;
+		("v")
+		    vnode1_id=${args[1]}
+           	    vnode2_id=${args[2]}
+           	    index1=$(($vnode1_id / ($SIZE / $NR_NODES)))
+         	    index2=$(($vnode2_id / ($SIZE / $NR_NODES)))
+                    vnode2_vip=$(ssh ${NODES[$index2]} "bash $NODE_NODE_SCRIPT getvip $vnode2_id")
+		    type=${args[3]}		    
+                    ssh ${NODES[$index1]} "bash $NODE_NODE_SCRIPT iperf c $vnode1_id $vnode2_vip $type"
+		    ;;
+		("kill") #shutdown the iperf server on the vnode
+		    vnode_id=${args[1]}
+		    index=$(($vnode_id / ($SIZE / $NR_NODES)))
+		    ssh ${NODES[$index]} "bash $NODE_NODE_SCRIPT iperf kill $vnode_id"
+		    ;;
+		(*)
+		    echo "Usage:"
+		    echo "iperf <s> <vnode_id> <vnode_id> <t/u>(tcp or udp) to start the iperf server in the vnode"
+                    echo "iperf <d> <vnode1_id(client)> <vnode2_id(server)> <t/u>(tcp or udp) for testing direct link"
+                    echo "iperf <v> <vnode1_id(client)> <vnode2_id(server)> <t/u>(tcp or udp) for testing virtual link"
+                    echo "iperf kill <vnode_id> to kill the iperf server process on that node" 		
+		    ;;
+	    esac
+            ;;
+
+	("mem")
+	    #monitor the mem utilization of tincan in specific vnode
+            # check if 'all' is present
+            for i in ${args[@]}; do
+                if [ "$i" == 'all' ]; then
+                    args=($(seq 0 $(($SIZE-1))))
+                fi
+            done
+            # create list of vnodes for each node
+            node_list=()
+            for i in ${args[@]}; do
+                index=$(($i / ($SIZE / $NR_NODES)))
+                node_list[$index]="${node_list[$index]} $i"
+            done
+            # nodes run list of vnodes
+            for i in $(seq 0 $(($NR_NODES - 1))); do
+                ssh ${NODES[$i]} "bash $NODE_NODE_SCRIPT mem '${node_list[$i]}' "
+            done
+	    ;;
         ("quit")
             exit 0
             ;;
@@ -201,6 +291,11 @@ while true; do
             echo '  IPOP network simulation:'
             echo '    run     [list|all] : run list|all nodes'
             echo '    kill    [list|all] : kill list|all nodes'
+	    echo ''
+	    echo '  test:'
+	    echo '    mem     [list|all] : get the memory utilization of tincan in list|all nodes'
+	    echo '    iperf   <args>     : test the network throughput through virtual link or direct link'
+	    echo '    ping    <args>     : test the network delay through virtual link or direct link' 
             echo ''
             echo '  utility:'
             echo '    quit               : quit program'
