@@ -17,7 +17,7 @@ This project is composed of scripts for automating the preparation and simulatio
 git clone https://github.com/ipop-project/controllers.git
 cd controllers/; git checkout devel; cd -
 
-git clone https://github.com/ssabogal/ipop-gvpn-scale-test.git
+git clone https://github.com/xiang9156/ipop-gvpn-scale-test.git
 cd ipop-gvpn-scale-test/
 mv ../controllers/controller scale/node/ipop/
 ```
