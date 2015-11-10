@@ -28,6 +28,9 @@ config <args\> |Instruct nodes to create configuration files for each IPOP-node 
 forward <port\>|Instruct one node to run a forwarding program using port _port_.
 run [list/all] |Instruct nodes to run the _list_ of, or _all_, IPOP-nodes.
 kill [list/all]|Instruct nodes to run the _list_ of, or _all_, IPOP-nodes.
+mem [list/all] |Get the memory utilization of ipop-tincan on _list_ of, or _all_, IPOP-nodes.
+iperf          |Test the network throughput between two nodes through virtual link or direct link. Enter "iperf help" for detailed usage in scale.bash.
+ping           |Test the network delay between two nodes through virtual link or direct link. Enter "ping help" for detailed usage in scale.bash.
 quit           |Quit this program.
 
 NOTE: "Nodes" are defined as the physical/virtual computers in this testbed. "IPOP-nodes" are instances of the IPOP software running in a LXC container (one IPOP-node per LXC container).
@@ -59,5 +62,7 @@ _source_
 _config <args\>_
 _run [list/all]_
 _kill [list/all]_
-7. Clearing the platform
+7. Testing the IPOPnetwork
+Enter the following commands to get the memory utilization of tincan on each node, test the network throughput and delay. _mem_ _ping_ _iperf_
+8. Clearing the platform
 To clear the platform, enter _exit_. This returns the script procedures to just after the _install_. To re-initialize the platform, enter _init [size\]_.
