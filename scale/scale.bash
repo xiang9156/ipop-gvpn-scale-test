@@ -246,7 +246,7 @@ while true; do
 		    ;;
 		(*)
 		    echo "Usage:"
-		    echo "iperf <s> <vnode_id> <vnode_id> <t/u>(tcp or udp) to start the iperf server in the vnode"
+		    echo "iperf <s> <vnode_id> <t/u>(tcp or udp) to start the iperf server in the vnode"
                     echo "iperf <d> <vnode1_id(client)> <vnode2_id(server)> <t/u>(tcp or udp) for testing direct link"
                     echo "iperf <v> <vnode1_id(client)> <vnode2_id(server)> <t/u>(tcp or udp) for testing virtual link"
                     echo "iperf kill <vnode_id> to kill the iperf server process on that node" 		
