@@ -239,7 +239,7 @@ case $1 in
         vnode_list=($2)
 
         for vnode in ${vnode_list[@]}; do
-	    tincan_pid=$(sudo lxc-attach -n "node$vnode" -- ps aux | grep tincan | grep root | awk '{print$2}' | head -n 1)
+	    tincan_pid=$(sudo lxc-attach -n "node$vnode" -- ps aux | grep -v grep | grep tincan | grep -v sudo | awk '{print $2}' | head -n 1)
             sudo lxc-attach -n "node$vnode" -- top -n 1 -b -p $tincan_pid
         done
         ;;
