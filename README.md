@@ -101,7 +101,7 @@ In scale.bash:
 
 ping:
 
-```ping <vnode1_id> <vnode2_id> <count>``` for ping from vnode1 to vnode2
+```ping <d/v> <vnode1_id> <vnode2_id> <count>``` for ping from vnode1 to vnode2 through direct link or virtual link
 
 iperf:
 
