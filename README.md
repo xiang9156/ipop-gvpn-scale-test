@@ -95,3 +95,20 @@ In scale.bash:
 In a separate terminal:
 
 ```python3 scale/visualizer.py tcp <forwarder ipv4> <forwarder port> <SIZE> <GUI window size (length)>```
+
+#### IPOP TEST:
+In scale.bash:
+
+ping:
+
+```ping <vnode1_id> <vnode2_id> <count>``` for ping from vnode1 to vnode2
+
+iperf:
+
+```iperf s <vnode_id> <t/u>``` for running a iperf server with tcp or udp
+
+```iperf <d/v> <vnode1_id> <vnode2_id> <t/u>``` for testing throughput between vnode1(client) and vnode2(server) with tcp or udp through direct link or virtual link
+
+mem:
+
+```mem <vnode_id>/<all>``` for monitoring the memory utilization of tincan on specific vnode or all vnodes
