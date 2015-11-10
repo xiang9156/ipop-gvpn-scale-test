@@ -207,8 +207,8 @@ while true; do
                     ;;
                 (*)
 		    echo "Usage:"
-		    echo "ping <d> <vnode1_id> <vnode2_id> <count> for testing direct link"
-		    echo "ping <v> <vnode1_id> <vnode2_id> <count> for testing virtual link"
+		    echo "ping <d> <vnode1_id> <vnode2_id> <count>(optional) for testing direct link"
+		    echo "ping <v> <vnode1_id> <vnode2_id> <count>(optional) for testing virtual link"
                     ;;
             esac
 	    ;;
